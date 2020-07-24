@@ -1,0 +1,59 @@
+public class AccountAutoOpp {
+        
+    public static void AutoOppInsert(List <Account> newOpp){
+    
+    system.debug('Start - AutoOpp on Account');
+         
+    List<Opportunity> oppList=new List<Opportunity>();
+        
+    for(Account acc: newOpp)
+    {
+        Opportunity opp=new Opportunity();
+        opp.AccountId=acc.Id; 
+        opp.Name=acc.Name;
+        opp.StageName='Primo Contactto';
+        opp.CloseDate=System.today().addMonths(1);
+        oppList.add(opp);     
+        
+     system.debug('New Opportunity: ' + opp.AccountId);
+    }        
+    insert oppList;
+    }
+    
+    
+  public static void AutoOppUpdate(List<Account> oldAcc){
+     
+    Set<Id> AccIDS = new Set<Id>();
+      Map<Id,List<Opportunity>> oppMap = new Map<Id, List<Opportunity>>();
+     
+      for(Account acc : oldAcc){
+		AccIDS.add(acc.Id);
+      }
+   
+    List<Account> accList = [Select Id, Name,  (Select Id, Name, Account.Name, Account.CountOpp__c from Opportunities order by CreatedDate ) from Account where id in: AccIDS];
+      for (Account acc : accList){
+          
+          List<Opportunity> opp = acc.Opportunities; 
+          System.debug(opp);
+          oppMap.put(acc.Id,opp);
+      }
+      
+      System.debug(oppMap);
+      
+     for(Id a: oppMap.keySet()){
+          List<Opportunity> opp = oppMap.get(a);
+         List<Opportunity> newO	= new List<Opportunity>();
+         integer c=1; 
+          for(Opportunity o: opp){
+            System.debug(o.Name);
+              System.debug(o.Account.Name);
+             
+                  o.Name = o.Account.Name+' '+c;
+                  System.debug('New' + o.Name);
+              newO.add(o);
+              c++; 
+          }
+      update newO;
+  	}
+}
+}
