@@ -1,0 +1,9 @@
+trigger AutoOpportunity on Account (after insert, after update) {
+    if (Trigger.isInsert){
+       AccountAutoOpp.AutoOppInsert(trigger.new); 
+    }
+    
+    if(Trigger.isUpdate){
+        AccountAutoOpp.AutoOppUpdate(trigger.new); 
+    }
+    }
